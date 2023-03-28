@@ -11,41 +11,37 @@ Parameters:
     Type: String
     Default: somekey
     Description: Enter the S3 object key path of your PyTorch model artefacts.
-  LambdaLayerArn:
-    Type: String
-    Default: "arn:aws:lambda:eu-west-1:934676248949:layer:pytorchv1-py36:2"
-    Description: Enter the PyTorch Lambda Layer ARN. Defaults to a public one in the "us-east-1" region.
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 
 Globals:
     Function:
         Timeout: 30
+        MemorySize: 1750
 
 Resources:
 
   PyTorchFunction:
       Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
       Properties:
-          CodeUri: pytorch/
-          Handler: app.lambda_handler
-          Runtime: python3.6
-          MemorySize: 3008
-          Environment:
-            Variables:
-              MODEL_BUCKET: !Ref BucketName
-              MODEL_KEY: !Ref ObjectKey
-          Policies:
-            - S3ReadPolicy:
-                BucketName: !Ref BucketName
-          Layers:
-            - !Ref LambdaLayerArn 
-          Events:
-              PyTorch:
-                  Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-                  Properties:
-                      Path: /invocations
-                      Method: post
+        PackageType: Image
+        Architectures:
+          - x86_64
+        Environment:
+          Variables:
+            MODEL_BUCKET: !Ref BucketName
+            MODEL_KEY: !Ref ObjectKey
+        Role: arn:aws:iam::363437592425:role/SAM_ML_LAMBDA_S3
+        Events:
+            PyTorch:
+                Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+                Properties:
+                    Path: /invocations
+                    Method: post
+      Metadata:
+        Dockerfile: Dockerfile
+        DockerContext: ./app
+        DockerTag: python3.9-v1
                         
 Outputs:
 
@@ -58,8 +54,4 @@ Outputs:
 
     PyTorchFunction:
       Description: "PyTorch Lambda Function ARN"
-      Value: !GetAtt PyTorchFunction.Arn
-
-    PyTorchFunctionIamRole:
-      Description: "Implicit IAM Role created for PyTorch function"
-      Value: !GetAtt PyTorchFunctionRole.Arn                        
+      Value: !GetAtt PyTorchFunction.Arn                       

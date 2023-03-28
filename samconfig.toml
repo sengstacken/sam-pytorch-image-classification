@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "sam-test-app"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-2ai8jxrun67o"
+s3_prefix = "sam-test-app"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "BucketName=\"sengstacken-otto\" ObjectKey=\"model_artifacts/car.or.not/model.tar.gz\""
+image_repositories = ["PyTorchFunction=363437592425.dkr.ecr.us-east-2.amazonaws.com/testsamappaae024ed/pytorchfunctione0e4d9b7repo"]
